@@ -88,7 +88,7 @@ foreach ($PklFile in $AllPkls) {
     }
 
     # Male model (but not female)
-    if (($Name -like "*male*" -or $Name -like "*_m_*") -and $Name -notlike "*female*") {
+    if (($Name -like "*male*" -or $Name -like "*_m_*") -and ($Name -notlike "*female*")) {
         Copy-Item -Path $PklFile.FullName -Destination "$ModelsDir\SMPL_MALE.pkl" -Force
         Write-Host "  ✓ Created SMPL_MALE.pkl" -ForegroundColor Green
     }
