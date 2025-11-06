@@ -58,36 +58,52 @@ class VastAIDeployer:
         if gpu_name:
             print(f"   - GPU filter: {gpu_name}")
 
-        # Build search query
-        query = {
-            "verified": {"eq": True},
-            "rentable": {"eq": True},
-            "gpu_ram": {"gte": min_gpu_ram * 1024},  # Convert to MB
-            "dph_total": {"lte": max_price},
-            "cuda_max_good": {"gte": 12.0},  # CUDA 12.0+
-        }
-
-        if gpu_name:
-            query["gpu_name"] = {"contains": gpu_name}
-
-        # Make search request
+        # Make search request - get all available offers
         response = self._make_request(
-            "POST",
-            "/bundles",
-            json={"q": query, "type": "on-demand"}
+            "GET",
+            "/bundles"
         )
 
         offers = response.get("offers", [])
 
         if not offers:
+            print("❌ No instances found")
+            return []
+
+        # Filter offers based on criteria
+        filtered_offers = []
+        for offer in offers:
+            # Check if rentable
+            if not offer.get("rentable", False):
+                continue
+
+            # Check GPU RAM (in MB)
+            gpu_ram_mb = offer.get("gpu_ram", 0)
+            if gpu_ram_mb < min_gpu_ram * 1024:
+                continue
+
+            # Check price
+            price = offer.get("dph_total", 999)
+            if price > max_price:
+                continue
+
+            # Check GPU name if specified
+            if gpu_name:
+                offer_gpu = offer.get("gpu_name", "")
+                if gpu_name.lower() not in offer_gpu.lower():
+                    continue
+
+            filtered_offers.append(offer)
+
+        if not filtered_offers:
             print("❌ No instances found matching criteria")
             return []
 
         # Sort by price
-        offers.sort(key=lambda x: x.get("dph_total", 999))
+        filtered_offers.sort(key=lambda x: x.get("dph_total", 999))
 
-        print(f"\n✓ Found {len(offers)} available instances")
-        return offers
+        print(f"\n✓ Found {len(filtered_offers)} matching instances (from {len(offers)} total)")
+        return filtered_offers
 
     def display_offers(self, offers: List[Dict], limit: int = 5):
         """Display available offers"""
