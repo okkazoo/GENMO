@@ -58,10 +58,10 @@ class VastAIDeployer:
         if gpu_name:
             print(f"   - GPU filter: {gpu_name}")
 
-        # Make search request - get all available offers
+        # Make search request - use correct Vast.ai API endpoint
         response = self._make_request(
             "GET",
-            "/bundles"
+            "/search/asks"
         )
 
         offers = response.get("offers", [])
