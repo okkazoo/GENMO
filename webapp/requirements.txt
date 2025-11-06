@@ -1,0 +1,15 @@
+# GENMO Web Application Dependencies
+
+# Web Framework
+Flask==3.0.0
+Werkzeug==3.0.0
+
+# 3D Export
+trimesh==4.0.5
+usd-core==23.11
+
+# API Requests (for Vast.ai deployment)
+requests==2.31.0
+
+# Additional utilities
+Pillow==10.1.0
