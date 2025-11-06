@@ -124,7 +124,7 @@ class VastAIDeployer:
     def create_instance(
         self,
         offer_id: int,
-        docker_image: str = "genmo-webapp:latest",
+        docker_image: str = "nvidia/cuda:12.1.0-cudnn8-devel-ubuntu22.04",
         disk_space: int = 50
     ) -> Dict:
         """
@@ -143,11 +143,16 @@ class VastAIDeployer:
             "disk": disk_space,
             "label": "genmo-webapp",
             "onstart": (
-                "cd /workspace/GENMO && "
-                "git pull && "
-                "/workspace/docker-entrypoint.sh"
+                "apt-get update && "
+                "apt-get install -y git python3-pip && "
+                "cd /workspace && "
+                "git clone https://github.com/okkazoo/GENMO.git || (cd GENMO && git pull) && "
+                "cd GENMO && "
+                "git checkout claude/genmo-video-to-3d-webapp-011CUrLrmUu9UX4attK4bKFb && "
+                "pip3 install flask werkzeug requests && "
+                "echo 'Setup complete. To start webapp: cd /workspace/GENMO/webapp && python3 app.py'"
             ),
-            "runtype": "ssh",
+            "runtype": "ssh jupyter ssh_direc",
             "env": {
                 "GENMO_MODE": "webapp"
             }
